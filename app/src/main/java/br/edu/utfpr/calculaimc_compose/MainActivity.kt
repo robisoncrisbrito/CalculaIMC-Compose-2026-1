@@ -112,7 +112,6 @@ fun CalculaImcScreen(name: String, modifier: Modifier = Modifier) {
             ) {
                 Text( "Limpar" )
             }
-
         }
     }
 }
