@@ -30,6 +30,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.calculaimc_compose.model.ImcViewModel
 import br.edu.utfpr.calculaimc_compose.ui.theme.CalculaIMCComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,31 +47,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CalculaImcScreen() {
+fun CalculaImcScreen(viewModel: ImcViewModel = viewModel() ) {
 
-    var peso by rememberSaveable { mutableStateOf( "") }
-    var altura by rememberSaveable { mutableStateOf( "") }
-
-    var resultado by rememberSaveable { mutableStateOf( "0.00") }
+    var peso = viewModel.peso
+    var altura = viewModel.altura
+    var resultado = viewModel.resultado
 
     var focusRequester = remember { FocusRequester() }
-
-    val calculaImc = {
-        val pesoDouble = peso.toDoubleOrNull()
-        val alturaDouble = altura.toDoubleOrNull()
-
-        if ( pesoDouble != null && alturaDouble != null ) {
-            val imc = pesoDouble / (alturaDouble * alturaDouble)
-            resultado = "%.2f".format(imc)
-        }
-    }
-
-    val limparTela = {
-        peso = ""
-        altura = ""
-        resultado = "0.00"
-        focusRequester.requestFocus()
-    }
 
     Column(
         modifier = Modifier
@@ -81,8 +65,8 @@ fun CalculaImcScreen() {
     {
 
         OutlinedTextField(
-            value = peso,
-            onValueChange = {peso = it},
+            value = viewModel.peso,
+            onValueChange = { viewModel.onPesoChange(it) },
             label = { Text("Peso em Kg") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -91,8 +75,8 @@ fun CalculaImcScreen() {
         )
 
         OutlinedTextField(
-            value = altura,
-            onValueChange = {altura=it},
+            value = viewModel.altura,
+            onValueChange = { viewModel.onAlturaChange(it) },
             label = { Text("Altura em m") },
             modifier = Modifier
                 .fillMaxWidth(),
@@ -104,8 +88,11 @@ fun CalculaImcScreen() {
         }
 
         PanelButtons(
-            onCalcularImcClick = calculaImc,
-            onLimparClick = limparTela
+            onCalcularImcClick = { viewModel.calculaImc() },
+            onLimparClick = {
+                viewModel.limparTela()
+                focusRequester.requestFocus()
+            }
         )
 
     }
