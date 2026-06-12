@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +33,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import br.edu.utfpr.calculaimc_compose.model.ImcViewModel
 import br.edu.utfpr.calculaimc_compose.ui.theme.CalculaIMCComposeTheme
 
@@ -40,14 +45,46 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculaIMCComposeTheme {
-                CalculaImcScreen()
+
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = "home" ) {
+
+                    composable( "home",
+                        enterTransition = {
+                            slideInHorizontally()
+                        },
+                        exitTransition = {
+                            slideOutHorizontally()
+                        }
+                    ) {
+                        CalculaImcScreen(
+                            onNavegateToDeveloper = {
+                                navController.navigate("developer")
+                            }
+                        )
+                    }
+
+                    composable( "developer") {
+                        DeveloperScreen()
+                    }
+
+
+                }
+
+
+
+
             }
         }
     }
 }
 
 @Composable
-fun CalculaImcScreen(viewModel: ImcViewModel = viewModel() ) {
+fun CalculaImcScreen(
+    viewModel: ImcViewModel = viewModel(),
+    onNavegateToDeveloper: () -> Unit
+) {
 
     var peso = viewModel.peso
     var altura = viewModel.altura
@@ -94,6 +131,14 @@ fun CalculaImcScreen(viewModel: ImcViewModel = viewModel() ) {
                 focusRequester.requestFocus()
             }
         )
+
+        Button(
+            onClick = onNavegateToDeveloper,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text( "Sobre o Desenvolvedor" )
+        }
+
 
     }
 } //fim do CalculaImcScreen
@@ -150,6 +195,29 @@ fun PanelButtons(
 
 }
 
+@Composable
+fun DeveloperScreen( modifier: Modifier = Modifier ) {
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Desenvolvido por:"
+        )
+
+        Text(
+            text = "PM45S-2026-1",
+            style = MaterialTheme.typography.headlineLarge
+        )
+    }
+
+}
+
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun PanelButtonsPreview() {
@@ -175,6 +243,16 @@ fun PanelResultPreview() {
 @Composable
 fun CalculaImcScreenPreview() {
     CalculaIMCComposeTheme {
-        CalculaImcScreen()
+        CalculaImcScreen(
+            onNavegateToDeveloper = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DeveloperSreenPreview() {
+    CalculaIMCComposeTheme {
+        DeveloperScreen()
     }
 }
